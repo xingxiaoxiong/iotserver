@@ -122,12 +122,72 @@ def deleteNode(greenhouse_id, node_id):
     else:
         return render_template('node/deleteNode.html', node = nodeToDelete)
             
-@app.route('/greenhouse/<int:greenhouse_id>/node/<int:node_id>/', methods=['GET', 'POST'])
-def showNode(node_id, greenhouse_id):
-    if request.method == 'POST':
-        pass
+@app.route('/node/<int:node_id>/', methods=['GET'])
+def showNode(node_id):
+    # if 'username' not in login_session or user_id != login_session['user_id']:
+    #     response = make_response(
+    #         json.dumps('Permission denied.', 400))
+    #     response.headers['Content-Type'] = 'application/json'
+    #     return response
+    # user = session.query(User).filter_by(id=user_id).one();
+
+    from_date_str   = request.args.get('from', time.strftime("%Y-%m-%d 00:00"))
+    to_date_str     = request.args.get('to', time.strftime("%Y-%m-%d %H:%M"))
+    timezone        = request.args.get('timezone','Etc/UTC');
+    range_h_form    = request.args.get('range_h','');
+    range_h_int     = "nan"
+    try: 
+        range_h_int = int(range_h_form)
+    except:
+        print "range_h_form not a number"
+
+    if not validate_date(from_date_str):
+        from_date_str   = time.strftime("%Y-%m-%d 00:00")
+    if not validate_date(to_date_str):
+        to_date_str     = time.strftime("%Y-%m-%d %H:%M")
+
+    from_date_obj       = datetime.datetime.strptime(from_date_str,'%Y-%m-%d %H:%M')
+    to_date_obj         = datetime.datetime.strptime(to_date_str,'%Y-%m-%d %H:%M')
+
+    if isinstance(range_h_int,int): 
+        arrow_time_from = arrow.utcnow().replace(hours=-range_h_int)
+        arrow_time_to   = arrow.utcnow()
+        from_date_utc   = arrow_time_from.strftime("%Y-%m-%d %H:%M")    
+        to_date_utc     = arrow_time_to.strftime("%Y-%m-%d %H:%M")
+        from_date_str   = arrow_time_from.to(timezone).strftime("%Y-%m-%d %H:%M")
+        to_date_str     = arrow_time_to.to(timezone).strftime("%Y-%m-%d %H:%M")
     else:
-        return render_template('node/showNode.html', node_id = node_id, greenhouse_id = greenhouse_id)
+        #Convert datetimes to UTC so we can retrieve the appropriate records from the database
+        from_date_utc   = arrow.get(from_date_obj, timezone).to('Etc/UTC').strftime("%Y-%m-%d %H:%M")   
+        to_date_utc     = arrow.get(to_date_obj, timezone).to('Etc/UTC').strftime("%Y-%m-%d %H:%M")
+
+    print from_date_str
+    print to_date_str
+    tempRecords = session.query(Temperature).filter_by(node_id=node_id).filter( (Temperature.datetime >= from_date_utc.format('YYYY-MM-DD HH:mm')) & (Temperature.datetime <= to_date_utc.format('YYYY-MM-DD HH:mm'))).all()
+    humRecords = session.query(Humidity).filter_by(node_id=node_id).filter( (Humidity.datetime >= from_date_utc.format('YYYY-MM-DD HH:mm')) & (Humidity.datetime <= to_date_utc.format('YYYY-MM-DD HH:mm'))).all()
+    
+    time_adjusted_temperatures = []
+    time_adjusted_humidity = []
+
+    for record in humRecords:
+        local_timedate = arrow.get(record.datetime, 'Etc/UTC').to(timezone)
+        # record.datetime = local_timedate.format('YYYY-MM-DD HH:mm:ss')
+        # record.datetime = datetime.datetime.strptime(local_timedate.format('YYYY-MM-DD HH:mm:ss'),'%Y-%m-%d %H:%M:%S')
+        time_adjusted_humidity.append([local_timedate.format('YYYY-MM-DD HH:mm:ss'), round(record.value,2)])
+
+    for record in tempRecords:
+        local_timedate = arrow.get(record.datetime, 'Etc/UTC').to(timezone)
+        # record.datetime = local_timedate.format('YYYY-MM-DD HH:mm:ss')
+        # record.datetime = datetime.datetime.strptime(local_timedate.format('YYYY-MM-DD HH:mm:ss'),'%Y-%m-%d %H:%M:%S')
+        time_adjusted_temperatures.append([local_timedate.format('YYYY-MM-DD HH:mm:ss'), round(record.value,2)])
+
+    return render_template('node/showNode.html', tempRecords = time_adjusted_temperatures,
+                                                humRecords =  time_adjusted_humidity,
+                                                node_id = str(node_id), 
+                                                temp_items= len(tempRecords), 
+                                                api_key="ABCDEFGHIJKLMNOP",
+                                                from_date=from_date_str,
+                                                to_date=to_date_str);
             
 def validate_date(d):
     try:

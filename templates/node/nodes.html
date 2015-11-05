@@ -32,7 +32,7 @@
         {% for node in nodes %}
           <tr>
             <td class="text-center">
-                <a href='{{url_for('showNode', node_id = node.id, greenhouse_id = greenhouse_id)}}' >
+                <a href='{{url_for('showNode', node_id = node.id)}}' >
                     {{ node.name }}
                 </a>
             </td>
