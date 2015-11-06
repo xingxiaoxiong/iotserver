@@ -89,7 +89,8 @@ def nodes(greenhouse_id):
 @app.route('/greenhouse/<int:greenhouse_id>/new/', methods=['GET', 'POST'])
 def newNode(greenhouse_id):
     if request.method == 'POST':
-        newNode = Node(name = request.form['name'], greenhouse_id = greenhouse_id)
+        greenhouse = session.query(Greenhouse).filter_by(id = greenhouse_id).one()
+        newNode = Node(name = request.form['name'], greenhouse_id = greenhouse_id, farm_id = greenhouse.farm_id)
         session.add(newNode)
         session.commit()
         return redirect(url_for('nodes', greenhouse_id = greenhouse_id))
@@ -126,7 +127,6 @@ def deleteNode(greenhouse_id, node_id):
 def uploadData(api_key, temp):
     user = session.query(User).filter_by(api_key=api_key).one()
     greenhouses = session.query(Greenhouse).filter_by(user_id=user.id).all()
-    
     
     data = Temperature(value=temp, user_id = user.id)
     session.add(data)

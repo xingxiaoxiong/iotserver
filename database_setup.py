@@ -32,6 +32,9 @@ class Node(Base):
     name = Column(String(250), nullable=False)
     greenhouse_id = Column(Integer, ForeignKey('greenhouse.id'))
     greenhouse = relationship(Greenhouse)
+    farm_id = Column(Integer, ForeignKey('farm.id'))
+    farm = relationship(Farm)
+    
     
 class Temperature(Base):
     __tablename__ = 'temperature'
