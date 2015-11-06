@@ -28,6 +28,11 @@ session = DBSession()
 
 APPLICATION_NAME = "SensorCloud"
 
+def JSONResponse(message, code):
+    response = make_response(json.dumps(message, code))
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
 @app.route('/')
 @app.route('/farms/')
 def farms():
@@ -124,12 +129,24 @@ def deleteNode(greenhouse_id, node_id):
         return render_template('node/deleteNode.html', node = nodeToDelete)
         
 @app.route('/upload/<string:api_key>/node/<int:node_id>')
-def uploadData(api_key, temp):
-    user = session.query(User).filter_by(api_key=api_key).one()
-    greenhouses = session.query(Greenhouse).filter_by(user_id=user.id).all()
-    
-    data = Temperature(value=temp, user_id = user.id)
-    session.add(data)
+def uploadData(api_key, node_id):
+    farm = session.query(Farm).filter_by(api_key=api_key).one()
+    if farm == None:
+        return JSONResponse('Invalid API key', 400)
+        
+    node = session.query(Node).filter_by(id=node_id).one()
+    if node.farm_id != farm.id:
+        return JSONResponse('Permission denied', 400)
+        
+    temperature = request.args.get('temperature','nan');
+    if temperature != "nan":
+        try:
+            temperature = float(temperature)
+        except:
+            print "temperature not a number"
+    if isinstance(temperature, float):
+        tempData = Temperature(value=temperature, node_id=node.id)
+        session.add(tempData)
 
     humidity = request.args.get('humidity','nan');
     if humidity != "nan":
@@ -138,7 +155,7 @@ def uploadData(api_key, temp):
         except:
             print "humidity not a number"
     if isinstance(humidity, float):
-        humData = Humidity(value=humidity, user_id=user.id)
+        humData = Humidity(value=humidity, node_id=node.id)
         session.add(humData)
 
     session.commit()
@@ -154,7 +171,10 @@ def showNode(node_id):
     #     response.headers['Content-Type'] = 'application/json'
     #     return response
     # user = session.query(User).filter_by(id=user_id).one();
-
+    
+    node = session.query(Node).filter_by(id=node_id).one();
+    farm = session.query(Farm).filter_by(id=node.farm_id).one();
+    
     from_date_str   = request.args.get('from', time.strftime("%Y-%m-%d 00:00"))
     to_date_str     = request.args.get('to', time.strftime("%Y-%m-%d %H:%M"))
     timezone        = request.args.get('timezone','Etc/UTC');
@@ -164,7 +184,7 @@ def showNode(node_id):
         range_h_int = int(range_h_form)
     except:
         print "range_h_form not a number"
-
+    
     if not validate_date(from_date_str):
         from_date_str   = time.strftime("%Y-%m-%d 00:00")
     if not validate_date(to_date_str):
@@ -211,7 +231,8 @@ def showNode(node_id):
                                                 temp_items= len(tempRecords), 
                                                 api_key="ABCDEFGHIJKLMNOP",
                                                 from_date=from_date_str,
-                                                to_date=to_date_str);
+                                                to_date=to_date_str,
+                                                farm = farm);
             
 def validate_date(d):
     try:
