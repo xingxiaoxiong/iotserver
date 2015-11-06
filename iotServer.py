@@ -37,14 +37,14 @@ def JSONResponse(message, code):
 @app.route('/farms/')
 def farms():
     farms = session.query(Farm).all()
-    print farms
+    #print farms
     return render_template('farm/farms.html', farms = farms)
     
 @app.route('/farm/<int:farm_id>/')
 @app.route('/farm/<int:farm_id>/greenhouses/')
 def greenhouses(farm_id):
     greenhouses = session.query(Greenhouse).filter_by(farm_id = farm_id).all()
-    print greenhouses
+    #print greenhouses
     return render_template('greenhouse/greenhouses.html', greenhouses = greenhouses, farm_id = farm_id)
     
 @app.route('/farm/<int:farm_id>/new/', methods=['GET', 'POST'])
@@ -128,8 +128,21 @@ def deleteNode(greenhouse_id, node_id):
     else:
         return render_template('node/deleteNode.html', node = nodeToDelete)
         
-@app.route('/upload/<string:api_key>/node/<int:node_id>')
-def uploadData(api_key, node_id):
+@app.route('/upload/')
+def uploadData():
+    node_id = request.args.get('node_id','nan');
+    if node_id == 'nan':
+        return JSONResponse('Invalid Node ID', 400)
+    else:
+        try:
+            node_id = int(node_id)
+        except:
+            return JSONResponse('Invalid Node ID', 400)
+    
+    api_key = request.args.get('api_key','nan');
+    if api_key == 'nan':
+        return JSONResponse('Invalid API key', 400)
+    
     farm = session.query(Farm).filter_by(api_key=api_key).one()
     if farm == None:
         return JSONResponse('Invalid API key', 400)
@@ -205,8 +218,8 @@ def showNode(node_id):
         from_date_utc   = arrow.get(from_date_obj, timezone).to('Etc/UTC').strftime("%Y-%m-%d %H:%M")   
         to_date_utc     = arrow.get(to_date_obj, timezone).to('Etc/UTC').strftime("%Y-%m-%d %H:%M")
 
-    print from_date_str
-    print to_date_str
+    #print from_date_str
+    #print to_date_str
     tempRecords = session.query(Temperature).filter_by(node_id=node_id).filter( (Temperature.datetime >= from_date_utc.format('YYYY-MM-DD HH:mm')) & (Temperature.datetime <= to_date_utc.format('YYYY-MM-DD HH:mm'))).all()
     humRecords = session.query(Humidity).filter_by(node_id=node_id).filter( (Humidity.datetime >= from_date_utc.format('YYYY-MM-DD HH:mm')) & (Humidity.datetime <= to_date_utc.format('YYYY-MM-DD HH:mm'))).all()
     
