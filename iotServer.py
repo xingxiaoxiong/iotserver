@@ -121,6 +121,30 @@ def deleteNode(greenhouse_id, node_id):
         return redirect(url_for('nodes', greenhouse_id = greenhouse_id))
     else:
         return render_template('node/deleteNode.html', node = nodeToDelete)
+        
+@app.route('/upload/<string:api_key>/node/<int:node_id>')
+def uploadData(api_key, temp):
+    user = session.query(User).filter_by(api_key=api_key).one()
+    greenhouses = session.query(Greenhouse).filter_by(user_id=user.id).all()
+    
+    
+    data = Temperature(value=temp, user_id = user.id)
+    session.add(data)
+
+    humidity = request.args.get('humidity','nan');
+    if humidity != "nan":
+        try:
+            humidity = float(humidity)
+        except:
+            print "humidity not a number"
+    if isinstance(humidity, float):
+        humData = Humidity(value=humidity, user_id=user.id)
+        session.add(humData)
+
+    session.commit()
+    response = make_response(json.dumps('Upload succeed', 200))
+    response.headers['Content-Type'] = 'application/json'
+    return response
             
 @app.route('/node/<int:node_id>/', methods=['GET'])
 def showNode(node_id):
