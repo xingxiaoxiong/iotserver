@@ -28,7 +28,13 @@
       </div>
       
       <div class="row">
-        <table class="table table-hover">
+        <table class="table table-bordered text-center">
+            <tr>
+              <th class="text-center">Name</th>
+              <th colspan="2" class="text-center">Actions</th>
+              <th class="text-center">Watering Status</th>
+              <th class="text-center">Total Watering Time Yesterday</th>
+            </tr>
         {% for greenhouse in greenhouses %}
             <tr>
                 <td class="text-center">
@@ -47,6 +53,12 @@
                     greenhouse_id = greenhouse.id, greenhouse_name = greenhouse.name)}}'>
                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                   </a>
+                </td>
+                <td>
+                  Now
+                </td>
+                <td>
+                  10
                 </td>
             </tr>
         {% endfor %}
