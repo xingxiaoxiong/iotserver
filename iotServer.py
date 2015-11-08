@@ -172,7 +172,7 @@ def uploadData():
         session.add(humData)
 
     session.commit()
-    response = make_response(json.dumps('Upload succeed', 200))
+    response = make_response(json.dumps('OK', 200))
     response.headers['Content-Type'] = 'application/json'
     return response
             
