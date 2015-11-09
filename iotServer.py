@@ -134,7 +134,7 @@ def deleteNode(greenhouse_id, node_id):
         
 @app.route('/upload/')
 def uploadData():
-    node_id = request.args.get('node_id','nan');
+    node_id = request.args.get('id','nan');
     if node_id == 'nan':
         return JSONResponse('Invalid Node ID', 400)
     else:
@@ -143,7 +143,7 @@ def uploadData():
         except:
             return JSONResponse('Invalid Node ID', 400)
     
-    api_key = request.args.get('api_key','nan');
+    api_key = request.args.get('k','nan');
     if api_key == 'nan':
         return JSONResponse('Invalid API key', 400)
     
@@ -155,7 +155,7 @@ def uploadData():
     if node.farm_id != farm.id:
         return JSONResponse('Permission denied', 400)
         
-    temperature = request.args.get('temp','nan');
+    temperature = request.args.get('t','nan');
     if temperature != "nan":
         try:
             temperature = float(temperature)
@@ -165,7 +165,7 @@ def uploadData():
         tempData = Temperature(value=temperature, node_id=node.id)
         session.add(tempData)
 
-    humidity = request.args.get('hum','nan');
+    humidity = request.args.get('h','nan');
     if humidity != "nan":
         try:
             humidity = float(humidity)
