@@ -1,7 +1,7 @@
 import os
 import sys
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, DateTime, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -53,6 +53,15 @@ class Humidity(Base):
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
     node_id = Column(Integer, ForeignKey('node.id'))
     node = relationship(Node)
+    
+class Watering(Base):
+    __tablename__ = 'watering'
+
+    id = Column(Integer, primary_key=True)
+    time = Column(Integer)
+    date = Column(Date)
+    greenhouse_id = Column(Integer, ForeignKey('greenhouse.id'))
+    greenhouse = relationship(Greenhouse)
 
 
 engine = create_engine('mysql+pymysql://root:worldofiot@localhost')
