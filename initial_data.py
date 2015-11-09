@@ -28,6 +28,8 @@ greenhouse1 = Greenhouse(name = "green1", farm_id = farm1.id)
 session.add(greenhouse1)
 session.commit()
 
-
+node1 = Node(name = "node1", farm_id = farm1.id, greenhouse_id = greenhouse1.id)
+session.add(node1)
+session.commit()
 
 

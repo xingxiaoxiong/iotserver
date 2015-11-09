@@ -3,7 +3,7 @@ import time, datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
-from database_setup import Base, Farm, Greenhouse, Node, Temperature, Humidity
+from database_setup import Base, Farm, Greenhouse, Node, Temperature, Humidity, Watering
 
 # imports for generating session
 from flask import session as login_session
@@ -88,8 +88,12 @@ def deleteGreenhouse(farm_id, greenhouse_id):
 @app.route('/greenhouse/<int:greenhouse_id>/nodes/')
 def nodes(greenhouse_id):
     nodes = session.query(Node).filter_by(greenhouse_id = greenhouse_id).all()
+    watering = session.query(Watering).filter_by(greenhouse_id = greenhouse_id).all();
     greenhouse = session.query(Greenhouse).filter_by(id = greenhouse_id).one()
-    return render_template('node/nodes.html', nodes = nodes, greenhouse_id = greenhouse_id, greenhouse = greenhouse)
+    return render_template('node/nodes.html', nodes = nodes,
+                                              greenhouse_id = greenhouse_id, 
+                                              greenhouse = greenhouse, 
+                                              watering = watering)
     
 @app.route('/greenhouse/<int:greenhouse_id>/new/', methods=['GET', 'POST'])
 def newNode(greenhouse_id):
@@ -246,6 +250,12 @@ def showNode(node_id):
                                                 from_date=from_date_str,
                                                 to_date=to_date_str,
                                                 farm = farm);
+                                                
+
+# def watering(greenhouse_id, methods=['GET', 'POST']):
+#     watering = session.query(Watering).filter_by(greenhouse_id = greenhouse_id).all();
+#     if request.method == 'POST':
+    
             
 def validate_date(d):
     try:
