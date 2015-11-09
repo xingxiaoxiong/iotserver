@@ -155,7 +155,7 @@ def uploadData():
     if node.farm_id != farm.id:
         return JSONResponse('Permission denied', 400)
         
-    temperature = request.args.get('temperature','nan');
+    temperature = request.args.get('temp','nan');
     if temperature != "nan":
         try:
             temperature = float(temperature)
@@ -165,7 +165,7 @@ def uploadData():
         tempData = Temperature(value=temperature, node_id=node.id)
         session.add(tempData)
 
-    humidity = request.args.get('humidity','nan');
+    humidity = request.args.get('hum','nan');
     if humidity != "nan":
         try:
             humidity = float(humidity)
