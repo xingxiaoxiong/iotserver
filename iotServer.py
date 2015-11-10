@@ -34,6 +34,9 @@ def JSONResponse(message, code):
     return response
 
 @app.route('/')
+def index():
+    return render_template('index.html')
+
 @app.route('/farms/')
 def farms():
     farms = session.query(Farm).all()
