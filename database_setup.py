@@ -64,30 +64,31 @@ class Watering(Base):
     greenhouse = relationship(Greenhouse)
 
 
-engine = create_engine('mysql+pymysql://root:worldofiot@localhost')
-
-engine.execute("CREATE DATABASE IF NOT EXISTS IoT")
-
-engine.execute("USE IoT")
-
-# engine.execute("CREATE TABLE IF NOT EXISTS User ( \
-#     id int PRIMARY KEY AUTO_INCREMENT, \
-#     api_key char(16) UNIQUE, \
-#     name varchar(255) NOT NULL, \
-#     email varchar(255) NOT NULL )"
-# )
-
-# engine.execute("CREATE TABLE IF NOT EXISTS Temperature ( \
-#     id int PRIMARY KEY, \
-#     value real, \
-#     datetime datetime NOT NULL, \
-#     user_id int, \
-#     FOREIGN KEY (user_id) REFERENCES User(id) )"
-# )
-
-# engine = create_engine('mysql://root:worldofiot@localhost/sensorcloud')
-# engine.execute("CREATE DATABASE SensorCloud") #create db
-# engine.execute("USE SensorCloud") # select new db
-
-
-Base.metadata.create_all(engine)
+if __name__ == '__main__':
+    engine = create_engine('mysql+pymysql://root:worldofiot@localhost')
+    
+    engine.execute("CREATE DATABASE IF NOT EXISTS IoT")
+    
+    engine.execute("USE IoT")
+    
+    # engine.execute("CREATE TABLE IF NOT EXISTS User ( \
+    #     id int PRIMARY KEY AUTO_INCREMENT, \
+    #     api_key char(16) UNIQUE, \
+    #     name varchar(255) NOT NULL, \
+    #     email varchar(255) NOT NULL )"
+    # )
+    
+    # engine.execute("CREATE TABLE IF NOT EXISTS Temperature ( \
+    #     id int PRIMARY KEY, \
+    #     value real, \
+    #     datetime datetime NOT NULL, \
+    #     user_id int, \
+    #     FOREIGN KEY (user_id) REFERENCES User(id) )"
+    # )
+    
+    # engine = create_engine('mysql://root:worldofiot@localhost/sensorcloud')
+    # engine.execute("CREATE DATABASE SensorCloud") #create db
+    # engine.execute("USE SensorCloud") # select new db
+    
+    
+    Base.metadata.create_all(engine)

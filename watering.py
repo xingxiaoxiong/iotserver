@@ -58,29 +58,30 @@ def timeToTurnOn(humidity):
     else:
         return 5
 
-greenhouses = session.query(Greenhouse).all();
-for greenhouse in greenhouses:
-    nodes = session.query(Node).filter_by(greenhouse_id = greenhouse.id).all();
-    cnt = 0
-    humidity = 0.0
-    hum = 0.0
-    
-    for node in nodes:
-        try:
-            hum = session.query(Humidity).filter(Humidity.node_id == node.id).filter(Humidity.datetime > tenMinBefore).one();
-        except:
-            hum = None
-        if hum != None:
-            humidity = humidity + hum
-            cnt = cnt + 1
-            
-    if cnt > 0:
-        humidity = humidity / cnt
-    data = timeToTurnOn(humidity)
-    
-    water = Watering(time = data, date = date.today(), greenhouse_id = greenhouse.id)
-    session.add(water)
-    session.commit()
+if __name__ == '__main__':
+    greenhouses = session.query(Greenhouse).all();
+    for greenhouse in greenhouses:
+        nodes = session.query(Node).filter_by(greenhouse_id = greenhouse.id).all();
+        cnt = 0
+        humidity = 0.0
+        hum = 0.0
+        
+        for node in nodes:
+            try:
+                hum = session.query(Humidity).filter(Humidity.node_id == node.id).filter(Humidity.datetime > tenMinBefore).one();
+            except:
+                hum = None
+            if hum != None:
+                humidity = humidity + hum
+                cnt = cnt + 1
+                
+        if cnt > 0:
+            humidity = humidity / cnt
+        data = timeToTurnOn(humidity)
+        
+        water = Watering(time = data, date = date.today(), greenhouse_id = greenhouse.id)
+        session.add(water)
+        session.commit()
     
     
     
