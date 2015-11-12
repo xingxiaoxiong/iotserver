@@ -235,6 +235,7 @@ def showNode(node_id):
     # user = session.query(User).filter_by(id=user_id).one();
     
     node = session.query(Node).filter_by(id=node_id).one();
+    greenhouse = session.query(Greenhouse).filter_by(id=node.greenhouse_id).one();
     farm = session.query(Farm).filter_by(id=node.farm_id).one();
     
     from_date_str   = request.args.get('from', time.strftime("%Y-%m-%d 00:00"))
@@ -294,7 +295,8 @@ def showNode(node_id):
                                                 api_key="ABCDEFGHIJKLMNOP",
                                                 from_date=from_date_str,
                                                 to_date=to_date_str,
-                                                farm = farm);
+                                                farm = farm,
+                                                greenhouse = greenhouse);
                                                 
 
 # def watering(greenhouse_id, methods=['GET', 'POST']):
