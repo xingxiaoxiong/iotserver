@@ -22,10 +22,10 @@ def computeWateringStatus(level, currentTime):
         return datetime.now().minute <= 12
     elif level == 5:
         if datetime.now().hour >= 18:
-            delta = datetime.now() - datetime.datetime(datetime.now().year, datetime.now().month, datetime.now().day, 18, 0)
+            delta = datetime.now() - datetime(datetime.now().year, datetime.now().month, datetime.now().day, 18, 0)
         else:
             yesterday = datetime.now() - timedelta(days=1)
-            delta = datetime.now() - datetime.datetime(yesterday.year, yesterday.month, yesterday.day, 18, 0)
+            delta = datetime.now() - datetime(yesterday.year, yesterday.month, yesterday.day, 18, 0)
         return delta.seconds % (45 * 60) < 12 * 60
     else: 
         return "-"

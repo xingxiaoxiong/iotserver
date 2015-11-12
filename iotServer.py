@@ -57,11 +57,11 @@ def greenhouses(farm_id):
             if datetime.datetime.today().hour >= 18:
                 record = session.query(Watering). \
                         filter(Watering.greenhouse_id == greenhouse.id). \
-                        filter(Watering.date == datetime.datetime.today() - datetime.timedelta(days = 1)).one()
+                        filter(Watering.date == datetime.date.today() - datetime.timedelta(days = 1)).first()
             else:
                 record = session.query(Watering). \
                         filter(Watering.greenhouse_id == greenhouse.id). \
-                        filter(Watering.date == datetime.datetime.today() - datetime.timedelta(days = 2)).one()
+                        filter(Watering.date == datetime.date.today() - datetime.timedelta(days = 2)).first()
                         
             level = record.time
         except:
@@ -71,12 +71,11 @@ def greenhouses(farm_id):
             if datetime.datetime.today().hour >= 18:
                 todayRecord = session.query(Watering). \
                         filter(Watering.greenhouse_id == greenhouse.id). \
-                        filter(Watering.date == datetime.datetime.today()).one()
+                        filter(Watering.date == datetime.date.today() - datetime.timedelta(days = 1)).first()
             else:
                 todayRecord = session.query(Watering). \
                         filter(Watering.greenhouse_id == greenhouse.id). \
-                        filter(Watering.date == datetime.datetime.today()).one()
-                        
+                        filter(Watering.date == datetime.date.today() - datetime.timedelta(days = 1)).first()
             todayLevel = todayRecord.time
         except:
             todayLevel = "-"
