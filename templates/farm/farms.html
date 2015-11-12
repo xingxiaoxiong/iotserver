@@ -20,15 +20,19 @@
     <![endif]-->
   </head>
   <body>
-    <h1>Existing Farms</h1>
     
-    {% for farm in farms %}
-        <h3> 
-            <a href='{{url_for('greenhouses', farm_id = farm.id)}}' >
-                {{ farm.name }}
-            </a>
-        </h3>
-    {% endfor %}
+    <div class="container text-center">
+      <h1>Existing Farms</h1>
+    
+      {% for farm in farms %}
+          <h3> 
+              <a href='{{url_for('greenhouses', farm_id = farm.id)}}' >
+                  {{ farm.name }}
+              </a>
+          </h3>
+      {% endfor %}
+    </div>
+    
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="/static/js/jquery-1.11.3.min.js"></script>
