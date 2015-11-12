@@ -71,7 +71,7 @@ def greenhouses(farm_id):
             if datetime.datetime.today().hour >= 18:
                 todayRecord = session.query(Watering). \
                         filter(Watering.greenhouse_id == greenhouse.id). \
-                        filter(Watering.date == datetime.date.today() - datetime.timedelta(days = 1)).first()
+                        filter(Watering.date == datetime.date.today()).first()
             else:
                 todayRecord = session.query(Watering). \
                         filter(Watering.greenhouse_id == greenhouse.id). \
