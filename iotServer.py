@@ -61,19 +61,33 @@ def greenhouses(farm_id):
             else:
                 record = session.query(Watering). \
                         filter(Watering.greenhouse_id == greenhouse.id). \
-                        filter(Watering.date == datetime.datetime.today()).one()
+                        filter(Watering.date == datetime.datetime.today() - datetime.timedelta(days = 2)).one()
                         
             level = record.time
         except:
             level = "-"
+
+        try:
+            if datetime.datetime.today().hour >= 18:
+                todayRecord = session.query(Watering). \
+                        filter(Watering.greenhouse_id == greenhouse.id). \
+                        filter(Watering.date == datetime.datetime.today()).one()
+            else:
+                todayRecord = session.query(Watering). \
+                        filter(Watering.greenhouse_id == greenhouse.id). \
+                        filter(Watering.date == datetime.datetime.today()).one()
+                        
+            todayLevel = todayRecord.time
+        except:
+            todayLevel = "-"
         
-        waterLevel.append(level)
+        # waterLevel.append(level)
         waterTime.append(levelToTime(level))
-        waterStatus.append(computeWateringStatus(level, datetime.datetime.now()))
+        waterStatus.append(computeWateringStatus(todayLevel, datetime.datetime.now()))
         
     info = zip(greenhouses, waterStatus, waterTime)  
     print info
-        
+
     return render_template('greenhouse/greenhouses.html', 
                             info = info, 
                             farm_id = farm_id)

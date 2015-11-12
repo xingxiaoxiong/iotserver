@@ -11,8 +11,6 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
 
-tenMinBefore = datetime.today() - timedelta(minutes = 10)
-
 def computeWateringStatus(level, currentTime):
     if level == 1:
         return datetime.now().minute <= 3
@@ -59,6 +57,7 @@ def timeToTurnOn(humidity):
         return 5
 
 if __name__ == '__main__':
+    tenMinBefore = datetime.today() - timedelta(minutes = 10)
     greenhouses = session.query(Greenhouse).all();
     for greenhouse in greenhouses:
         nodes = session.query(Node).filter_by(greenhouse_id = greenhouse.id).all();
@@ -68,7 +67,7 @@ if __name__ == '__main__':
         
         for node in nodes:
             try:
-                hum = session.query(Humidity).filter(Humidity.node_id == node.id).filter(Humidity.datetime > tenMinBefore).one();
+                hum = session.query(Humidity).filter(Humidity.node_id == node.id).filter(Humidity.datetime >= tenMinBefore).one();
             except:
                 hum = None
             if hum != None:
