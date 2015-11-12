@@ -35,7 +35,7 @@
               <th class="text-center">Watering Status</th>
               <th class="text-center">Total Watering Time Yesterday</th>
             </tr>
-        {% for greenhouse in greenhouses %}
+        {% for greenhouse, status, totalTime in info %}
             <tr>
                 <td class="text-center">
                   <a href='{{url_for('nodes', greenhouse_id = greenhouse.id)}}' >
@@ -55,10 +55,10 @@
                   </a>
                 </td>
                 <td>
-                  -
+                  {{ status }}
                 </td>
                 <td>
-                  -
+                  {{ totalTime }}
                 </td>
             </tr>
         {% endfor %}
@@ -66,7 +66,7 @@
       </div>
       
       <div class="row">
-        {% if greenhouses|length == 0 %}
+        {% if info|length == 0 %}
           <h4 class="text-left">No greenhouse exists yet. <a class="btn btn-primary" href='{{url_for('newGreenhouse', farm_id = farm_id)}}'>Add</a> a new greenhouse</h4>
         {% else %}
           <h4 class="text-right"><a class="btn btn-primary" href='{{url_for('newGreenhouse', farm_id = farm_id)}}'>Add</a> a new greenhouse</h4>

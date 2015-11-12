@@ -13,6 +13,39 @@ session = DBSession()
 
 tenMinBefore = datetime.today() - timedelta(minutes = 10)
 
+def computeWateringStatus(level, currentTime):
+    if level == 1:
+        return datetime.now().minute <= 3
+    elif level == 2:
+        return datetime.now().minute <= 6
+    elif level == 3:
+        return datetime.now().minute <= 9
+    elif level == 4:
+        return datetime.now().minute <= 12
+    elif level == 5:
+        if datetime.now().hour >= 18:
+            delta = datetime.now() - datetime.datetime(datetime.now().year, datetime.now().month, datetime.now().day, 18, 0)
+        else:
+            yesterday = datetime.now() - timedelta(days=1)
+            delta = datetime.now() - datetime.datetime(yesterday.year, yesterday.month, yesterday.day, 18, 0)
+        return delta.seconds % (45 * 60) < 12 * 60
+    else: 
+        return "-"
+
+def levelToTime(level):
+    if level == 1:
+        return 72
+    elif level == 2:
+        return 144
+    elif level == 3:
+        return 216
+    elif level == 4:
+        return 288
+    elif level == 5:
+        return 384
+    else: 
+        return "-"
+
 def timeToTurnOn(humidity):
     if humidity > 95.0:
         return 1
@@ -30,14 +63,19 @@ for greenhouse in greenhouses:
     nodes = session.query(Node).filter_by(greenhouse_id = greenhouse.id).all();
     cnt = 0
     humidity = 0.0
+    hum = 0.0
     
     for node in nodes:
-        hum = session.query(Humidity).filter_by(node_id = node.id, datetime >= tenMinBefore).one();
+        try:
+            hum = session.query(Humidity).filter(Humidity.node_id == node.id).filter(Humidity.datetime > tenMinBefore).one();
+        except:
+            hum = None
         if hum != None:
             humidity = humidity + hum
             cnt = cnt + 1
             
-    humidity = humidity / cnt
+    if cnt > 0:
+        humidity = humidity / cnt
     data = timeToTurnOn(humidity)
     
     water = Watering(time = data, date = date.today(), greenhouse_id = greenhouse.id)

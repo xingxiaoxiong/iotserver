@@ -9,6 +9,7 @@ from database_setup import Base, Farm, Greenhouse, Node, Temperature, Humidity, 
 from flask import session as login_session
 import random, string
 
+from watering import levelToTime, computeWateringStatus
 
 import httplib2
 import json
@@ -47,8 +48,35 @@ def farms():
 @app.route('/farm/<int:farm_id>/greenhouses/')
 def greenhouses(farm_id):
     greenhouses = session.query(Greenhouse).filter_by(farm_id = farm_id).all()
-    #print greenhouses
-    return render_template('greenhouse/greenhouses.html', greenhouses = greenhouses, farm_id = farm_id)
+    waterLevel = []
+    waterTime = []
+    waterStatus = []
+    
+    for greenhouse in greenhouses:
+        try:
+            if datetime.datetime.today().hour >= 18:
+                record = session.query(Watering). \
+                        filter(Watering.greenhouse_id == greenhouse.id). \
+                        filter(Watering.date == datetime.datetime.today() - datetime.timedelta(days = 1)).one()
+            else:
+                record = session.query(Watering). \
+                        filter(Watering.greenhouse_id == greenhouse.id). \
+                        filter(Watering.date == datetime.datetime.today()).one()
+                        
+            level = record.time
+        except:
+            level = "-"
+        
+        waterLevel.append(level)
+        waterTime.append(levelToTime(level))
+        waterStatus.append(computeWateringStatus(level, datetime.datetime.now()))
+        
+    info = zip(greenhouses, waterStatus, waterTime)  
+    print info
+        
+    return render_template('greenhouse/greenhouses.html', 
+                            info = info, 
+                            farm_id = farm_id)
     
 @app.route('/farm/<int:farm_id>/new/', methods=['GET', 'POST'])
 def newGreenhouse(farm_id):
