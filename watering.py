@@ -76,12 +76,10 @@ if __name__ == '__main__':
                 
         if cnt > 0:
             humidity = humidity / cnt
-        data = timeToTurnOn(humidity)
+            water = Watering(time = data, date = date.today(), greenhouse_id = greenhouse.id)
+            session.add(water)
+            session.commit()
         
-        water = Watering(time = data, date = date.today(), greenhouse_id = greenhouse.id)
-        session.add(water)
-        session.commit()
-    
     
     
     
