@@ -51,8 +51,11 @@ def greenhouses(farm_id):
     waterLevel = []
     waterTime = []
     waterStatus = []
+    nodes = []
     
     for greenhouse in greenhouses:
+        nodes.append (session.query(Node).filter_by(greenhouse_id = greenhouse.id).all())
+        #print nodes
         try:
             if datetime.datetime.today().hour >= 18:
                 record = session.query(Watering). \
@@ -84,8 +87,7 @@ def greenhouses(farm_id):
         waterTime.append(levelToTime(level))
         waterStatus.append(computeWateringStatus(todayLevel, datetime.datetime.now()))
         
-    info = zip(greenhouses, waterStatus, waterTime)  
-    print info
+    info = zip(greenhouses, waterStatus, waterTime, nodes)  
 
     return render_template('greenhouse/greenhouses.html', 
                             info = info, 
@@ -146,7 +148,7 @@ def newNode(greenhouse_id):
         newNode = Node(name = request.form['name'], greenhouse_id = greenhouse_id, farm_id = greenhouse.farm_id)
         session.add(newNode)
         session.commit()
-        return redirect(url_for('nodes', greenhouse_id = greenhouse_id))
+        return redirect(url_for('greenhouses', farm_id = greenhouse.farm_id))
     else:
         return render_template('node/newNode.html', greenhouse_id = greenhouse_id)
         
@@ -155,11 +157,12 @@ def newNode(greenhouse_id):
 def editNode(node_id, greenhouse_id):
     editedNode = session.query(Node).filter_by(id = node_id).one()
     if request.method == 'POST':
+        greenhouse = session.query(Greenhouse).filter_by(id = greenhouse_id).one()
         if request.form['name']:
             editedNode.name = request.form['name']
         session.add(editedNode)
         session.commit()
-        return redirect(url_for('nodes', greenhouse_id = greenhouse_id))
+        return redirect(url_for('greenhouses', farm_id = greenhouse.farm_id))
     else:
         return render_template(
             'node/editNode.html', node_id = node_id, 
@@ -170,9 +173,10 @@ def editNode(node_id, greenhouse_id):
 def deleteNode(greenhouse_id, node_id):
     nodeToDelete = session.query(Node).filter_by(id = node_id).one()
     if request.method == 'POST':
+        greenhouse = session.query(Greenhouse).filter_by(id = greenhouse_id).one()
         session.delete(nodeToDelete)
         session.commit()
-        return redirect(url_for('nodes', greenhouse_id = greenhouse_id))
+        return redirect(url_for('greenhouses', farm_id = greenhouse.farm_id))
     else:
         return render_template('node/deleteNode.html', node = nodeToDelete)
         
